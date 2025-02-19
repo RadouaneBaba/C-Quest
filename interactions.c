@@ -201,7 +201,6 @@ void handleCombat(Player *player, Monster *monster) {
                         break;
                 case 'E':
                         if(strcmp(poptions[res],"Parry") == 0){
-                            printf("here");
                             reflect = 1;
                         }
                         else if(strcmp(poptions[res],"Death blade") == 0)
