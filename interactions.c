@@ -18,8 +18,11 @@ void handleLvlUp(Player *player, int xp) {
         clearLine();
         //moveCursor(OPTION_LINE - 1, 1);
         //printf("Choose a Skill");
+        if (player->skillTree->left == NULL && player->skillTree->right == NULL) {
+            return;
+        }
         char *options[] = {player->skillTree->left->node->desc, player->skillTree->right->node->desc};
-        int res = optionMenu(options, 2);
+        int res = optionMenu(options, 2, "Choose a Skill");
         if (res == 0) {
             player->skillTree = player->skillTree->left;
         } else {
@@ -43,23 +46,41 @@ void handleItem(Player *player, Historique **head, char type) {
     char s1[20] = "Get a ";
     strcat(s1, item->nom);
     char *options[] = {s1, "Do nothing"};
-    int res = optionMenu(options, 2);
+    int res = optionMenu(options, 2, "");
     if (res == 0) {
         // different handling for different item types !!
-        addItem(player, item);
-        player->currMap->room[player->y][player->x]->type = 'E';
-        handleLvlUp(player, item->xp);
+        
         switch(type) {
             case 'S':
-            case 'W':
-                player->puissance = item->puissance;
+                if (player->class == 'K') {
+                    addItem(player, item);
+                    player->currMap->room[player->y][player->x]->type = 'E';
+                    handleLvlUp(player, item->xp);
+                    player->puissance = item->puissance;
+                }
+                else {
+                    char *unable[] = {"You can't use a Sword as a mage"};
+                    optionMenu(unable, 1, "");
+                }
                 break;
+            case 'W':
+                if (player->class == 'M') {
+                    addItem(player, item);
+                    player->currMap->room[player->y][player->x]->type = 'E';
+                    handleLvlUp(player, item->xp);
+                    player->puissance = item->puissance;
+                }
+                else {
+                    char *unable[] = {"You can't use a Wand as a Knight"};
+                    optionMenu(unable, 1, "");
+                }
+            break;
         }
     }
 }
 void handleTree(Player *player, Historique **head) {
     char *options[] = {"Cut wood from tree", "Do nothing"};
-    int res = optionMenu(options, 2);
+    int res = optionMenu(options, 2, "");
     if (res == 1) {
         undoMovement(player, head);
     } else {
@@ -75,7 +96,7 @@ void handleRiver(Player *player, Historique **head) {
     if (item) {
 
         char *options[] = {"Build a bridge to cross the river", "Do nothing"};
-        int res = optionMenu(options, 2);
+        int res = optionMenu(options, 2, "");
         if (res == 1) {
             undoMovement(player, head);
         } else {
@@ -85,9 +106,19 @@ void handleRiver(Player *player, Historique **head) {
         }
     } else {
         char *options[] = {"You can't cross the river unless you've got wood from trees!"};
-        optionMenu(options, 1);
+        optionMenu(options, 1, "");
         undoMovement(player, head);
     }
+}
+
+void skillOnCooldown(Queue *turns) {
+    moveCursor(OPTION_LINE, 1);
+    printf("skill on cooldown");
+    sleep(1);
+    clearLine();
+    dequeue(turns);
+    enqueue(turns, 'P');
+    enqueue(turns, 'M');
 }
 
 void handleCombat(Player *player, Monster *monster) {
@@ -111,49 +142,124 @@ void handleCombat(Player *player, Monster *monster) {
     }
 
     affichageMonster(monster);
+    int poison = 0;
+    int reflect = 0;
+    int q = 1;
+    int defense = 0;
+    int boost = 0 ;
+    int skip = 0;
+    int i = 5;
+    int addedefense,addedpuissace,addedarmor,addedsante;
     while (!is_empty(turns) && player->sante > 0 && monster->sante > 0) {
+        if(!q) q = 1;
         char turn = dequeue(turns);
         if (turn == 'P') {
             //char *options[] = {"Attack", "Do nothing"};
-            int res = optionMenu(poptions, length);
+            int res = optionMenu(poptions, length, "Your Turn");
             switch(skills[res]->class) {
                 case 'A':
-                    monster->sante -= skills[res]->puissance;
+                    monster->sante -= (skills[res]->puissance) + (player->puissance);
                     break;
+                case 'D':
+                    if(defense == 0 ){
+                      player->armor += skills[res]->armor;
+                      addedefense = skills[res]->armor;
+                      defense = 1;
+                    }
+                    else skillOnCooldown(turns);
+                    break;
+                case 'S':
+                    if(skip == 0){
+                    dequeue(turns);
+                    enqueue(turns, 'P');
+                    enqueue(turns, 'M');
+                     q = 0;
+                     skip = 3;
+                    }
+                    else skillOnCooldown(turns);
+                    break;
+                case 'B':
+                    if(boost ==0 ){
+                    player->puissance += skills[res]->puissance;
+                    addedpuissace = skills[res]->puissance ;
+                    player->armor += skills[res]->armor;
+                    addedarmor = skills[res]->armor;
+                    player->sante += skills[res]->santemax;
+                    addedsante = skills[res]->santemax; 
+                    boost = 1;
+                    }
+                    else skillOnCooldown(turns);
+                    break;
+                case 'U':
+                    int hitchance = rand() % 4;
+                        if(!hitchance)
+                            monster->sante -= skills[res]->puissance; 
+                        else {
+                            moveCursor(OPTION_LINE, 1);
+                            printf("You missed the enemy");
+                        }
+                        break;
+                case 'E':
+                        if(strcmp(poptions[res],"Parry") == 0){
+                            printf("here");
+                            reflect = 1;
+                        }
+                        else if(strcmp(poptions[res],"Death blade") == 0)
+                                poison = 3;
+                        break;
             }
-            enqueue(turns, 'P');
+            if(q) enqueue(turns, 'P');
         } else {
-            player->sante -= monster->puissance;
+            if(poison > 0){
+                monster->sante -= 10;
+                poison--;
+            }
+             if(!reflect){
+                if(skip > 0) skip --;
+                player->sante -= monster->puissance;
+            }
+            else {
+                monster->sante -= (monster->puissance - i);
+                reflect = 0;
+                i += 2;
+            }
             /*moveCursor(40, 5);
             printf("player %d", player->sante);*/
             enqueue(turns, 'M');
         }
         affichagePlayer(player);
-        clearMonsterAffichage();
+        clearAffichageMonster();
         affichageMonster(monster);
     }
     moveCursor(30, 1);
     if (player->sante <= 0) {
-        printf("You died !");
+        gameOver(0);
         exit(0);
     } else if (monster->sante <= 0) {
+        if(defense == 1) player->armor -=  addedefense;
+    if(boost == 1){
+        player->puissance -= addedpuissace;
+        player->armor -= addedarmor;
+        player->sante -= addedsante;
+    }
         printf("You Killed monster!");
         sleep(1);
         clearLine();
         handleLvlUp(player, monster->xp);
     }
+    
 }
 void handleMonster(Player *player, Historique **head) {
     Monster *monster = player->currMap->room[player->y][player->x]->monster;
     char s1[20] = "Fight ";
     strcat(s1, monster->nom);
     char *options[] = {s1, "Escape"};
-    int res = optionMenu(options, 2);
+    int res = optionMenu(options, 2, "You meet a Monster!");
     if (res == 1) {
         undoMovement(player, head);
     } else {
         handleCombat(player,monster);
-        clearMonsterAffichage();
+        clearAffichageMonster();
         player->currMap->room[player->y][player->x]->type = 'E';
     }
 }
@@ -161,19 +267,21 @@ void handleMonster(Player *player, Historique **head) {
 void handleBoss(Player *player, Historique **head) {
     if (player->currMap->hasBoss && player->currMap->lvlLock > player->lvl) {
         char *options[] = {"You are not ready yet to meet the Boss!"};
-        optionMenu(options, 1);
+        optionMenu(options, 1, "");
         undoMovement(player, head);
     } else {
-        int i = 0;
+        int i = rand() % NUM_RIDDLES;
         Riddle *riddles[3];
         initRiddles(riddles);
         moveCursor(OPTION_LINE - 2, 1);
-        printf("Welcome hero here is my riddle for you %s", riddles[i]->question);
-        int res = optionMenu(riddles[i]->opts, 3);
+        printf("Welcome hero we finally met here is my riddle for you");
+        int res = optionMenu(riddles[i]->opts, 3, riddles[i]->question);
+        moveCursor(OPTION_LINE - 2, 1);
+        clearLine();
         moveCursor(30, 1);
         if (strcmp(riddles[i]->opts[res], riddles[i]->reponse) == 0) {
-            printf("You won!");
-        } else printf("You Failed!");
+            gameOver(1);
+        } else gameOver(0);
         exit(0);
     }
 }

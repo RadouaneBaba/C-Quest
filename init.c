@@ -58,22 +58,22 @@ void initSkillTree(SkillTree *root) {
         exit(1);
     }
     //for mage
-    root->right = createTree(10, 0, 0, "Fireball", "Class: Mage + Skill: Fireball", 'A');//Launches a small fireball that deals moderate damage.
-    root->right->left = createTree(10, 0, 0, "Freeze", "Freeze: make the enemie unable to attack (skip his turn)", 'A');////make the enemie unable to attack (skip his turn)
-    root->right->right = createTree(0, 20, 5, "Arcane Shield", "Arcane Shield: Temporarily increases defense", 'A');//Temporarily increases defense
-    root->right->left->left = createTree(20, 0, 0, "Flame Burst", "Flame Burst: Creates an explosion around the player, damaging nearby enemies", 'A');//Creates an explosion around the player, damaging nearby enemies.
-    root->right->left->right = createTree(0, 10, 10, "Boost spell", "Boost spell: temporary increase armor and health", 'A');//temporary increase armor and health
-    root->right->right->left = createTree(15, 10, 0, "Mana Surge", "Mana Surge: Boosts magic power for a short time, increasing spell damage", 'A');//Boosts magic power for a short time, increasing spell damage.
-    root->right->right->right = createTree(0, 0, 20, "Arcane Cataclysm", "Arcane Cataclysm: Unleashes a devastating wave of energy, hitting all enemies", 'A');//Unleashes a devastating wave of energy, hitting all enemies.
+    root->right = createTree(10, 0, 0, "Fireball", "Class: Mage + Skill: Fireball", 'A');
+    root->right->left = createTree(0, 0, 0, "Freeze", "Freeze: make the enemie unable to attack for one turn", 'S');
+    root->right->right = createTree(0, 20, 5, "Arcane Shield", "Arcane Shield: increases defense", 'D');
+    root->right->left->left = createTree(20, 0, 0, "Black flash", "Black flash: Creates an explosion around the player,dealing decent damage", 'A');
+    root->right->left->right = createTree(0, 0, 0, "Parry", "Parry: Reflect the enemies attak back to it", 'E');
+    root->right->right->left = createTree(15, 10, -5, "Mana Surge", "Mana Surge: Boosts magic power and health, increasing spell damage,but reducing armor", 'B');
+    root->right->right->right = createTree(100, 0, 0, "Hollow purple", "Hollow purple: Unleashes a devastating wave of energythat can kill enemy in one hit(1/3 hit chance)", 'U');
 
     //for knight
-    root->left = createTree(10, 0, 5,"Heavy Strike", "Class: Knight + Skill: Heavy Strike", 'A');//attack with good damage
-    root->left->left = createTree(10, 0, 5, "Stun", "Stun: Make enemy unable to attack (skip his turn)", 'A');//make the enemie unable to attack (skip his turn)
-    root->left->right = createTree(0, 20, 10, "Iron Defense", "Iron Defense: Temporarily increases armor, reducing damage taken", 'A');//Temporarily increases armor, reducing damage taken.
-    root->left->left->left = createTree(15, 10, 0, "Space cleave", "Space cleave: Launch devastating sword attack that can hit multiple enemies at once", 'A');//Launch devastating sword attack that can hit multiple enemies at once
-    root->left->left->right = createTree(5, 0, 20, "Parry", "Parry: Reflect the enemies attak back to it", 'A');//reflect the enemies attak back to it
-    root->left->right->left = createTree(30, 0, 0, "Berserker Mode", "Berserker Mode: increase power attack signficantly but with each attack you lose health", 'A');//increase power attack signficantly but with each attack you lose health
-    root->left->right->right = createTree(0, 0, 30, "Death Blade", "Death Blade: poison the enemie(-10 hp till fight ends)", 'A');//poison the enemie(-10 hp till fight ends)
+    root->left = createTree(15, 0, 0,"Heavy Strike", "Class: Knight + Skill: Heavy Strike", 'A');
+    root->left->left = createTree(0, 0, 0, "Stun", "Stun: make the enemie unable to attack for one turn", 'S');
+    root->left->right = createTree(0, 20, 10, "Iron Defense", "Iron Defense: increases armor, reducing damage taken", 'D');
+    root->left->left->left = createTree(100,0, 0, "Cleave", "Cleave: Launch devastating sword attack that can kill enemy in one hit(1/4 hit chance)", 'U');
+    root->left->left->right = createTree(0, 0, 0, "Parry", "Parry: Reflect the enemies attak back to it", 'E');
+    root->left->right->left = createTree(30, -5, -5, "Berserker", "Berserker: increase power attack signficantly but reducing health", 'B');
+    root->left->right->right = createTree(10, 0, 0, "Death Blade", "Death Blade: poison the enemie(-10 hp every turn)", 'E');
 }
 
 // Function to initialize nerd C riddles

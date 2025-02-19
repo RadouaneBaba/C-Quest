@@ -22,6 +22,10 @@ void clearLine() {
     printf("\033[2K");
 }
 
+void clearLineFromCur() {
+    printf("\033[K");
+}
+
 // helper funcitons
 char *str_alloc(char *src) {
     char *dest = malloc(strlen(src) + 1);
@@ -126,12 +130,15 @@ char peekq(Queue *q) {
 /**
  * shows option menu and return index of choosen option by pressing enter
  */
-int optionMenu(char *options[], int size) {
+int optionMenu(char *options[], int size, char *context) {
     int k = 0;
-    moveCursor(OPTION_LINE, 1);
-    printf("---->");
+    int right = 4;
+    moveCursor(OPTION_LINE - 1, right);
+    printf("  %s", context);
+    moveCursor(OPTION_LINE + 1, right);
+    printf("  >");
     for (int i = 0; i < size; i++) {
-        moveCursor(OPTION_LINE + i, 7);
+        moveCursor(OPTION_LINE + i + 1, right + 4);
         printf("%s", options[i]);
     }
     while (1) {
@@ -144,27 +151,27 @@ int optionMenu(char *options[], int size) {
                     case 72:
                         
                         if (k > 0) {
-                            moveCursor(OPTION_LINE + k, 1);
-                            printf("     ");
+                            moveCursor(OPTION_LINE + k + 1, right);
+                            printf("   ");
                             k--;
-                            moveCursor(OPTION_LINE + k, 1);
-                            printf("---->");
+                            moveCursor(OPTION_LINE + k + 1, right);
+                            printf("  >");
                         }
                         break;
                     case 80:
                         if (k < size - 1) {
-                            moveCursor(OPTION_LINE + k, 1);
-                            printf("     ");
+                            moveCursor(OPTION_LINE + k + 1, right);
+                            printf("   ");
                             k++;
-                            moveCursor(OPTION_LINE + k, 1);
-                            printf("---->");
+                            moveCursor(OPTION_LINE + k + 1, right);
+                            printf("  >");
                         }
                         break;
                 }
             } else if (input == '\r') {
-                for (int i = OPTION_LINE; i < OPTION_LINE + size; i++) {
-                    moveCursor(i, 1);
-                    clearLine();
+                for (int i = OPTION_LINE - 1; i < OPTION_LINE + size + 1; i++) {
+                    moveCursor(i, right);
+                    clearLineFromCur();
                 }
                 return k;
             }

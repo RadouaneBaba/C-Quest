@@ -9,13 +9,19 @@
 #include <conio.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <signal.h>
 
 // ANSI escape codes
-#define Green "\033[0;32m"
-#define White "\033[0;37m"
-#define Yellow "\033[0;33m"
 #define Red "\033[0;31m"
+#define Green "\033[0;32m"
+#define Yellow "\033[0;33m"
+#define Blue "\033[0;34m"
+#define Magenta "\033[0;35m"
 #define Cyan "\033[0;36m"
+#define White "\033[0;37m"
+#define Brown   "\033[38;5;130m"
+
+#define Default "\033[0m"
 
 // Definitions
 
@@ -24,6 +30,7 @@
 #define MAX_EDGES 4
 #define OPTION_LINE 25
 #define NUM_RIDDLES 3
+#define RIGHT_SIDE 58
 
 // Definition des structures
 
@@ -74,11 +81,12 @@ typedef struct riddle_t {
 /**
  * node of a room (2x2) array
  * node might be: vide, monstre, arbre ... (type)
+ * type: 'T' = tree 'B' = Boss 'M' = Monster, 'R' = River, 'E' = Empty, 'S' = Sword, 'W' = Wand
  */
 typedef struct node_t {
     int x, y;
     int hasBoss;
-    char type; // 'L' = Lobby, 'M' = Monster, 'R' = River, 'E' = Empty, 'I' = Special Item
+    char type;
     Monster *monster;
     Item *item;
 } Node;
@@ -183,28 +191,38 @@ void showCursor();
 void moveCursor(int x, int y);
 void clearTerm();
 void clearLine();
+void clearLineFromCur();
 
 // Definitions des fonctions
 void initRooms(Map *map[]);
 void initGame(Player *p, char *name, Map *map[], int size);
 void affichageGame(Player *player);
 void playGame();
-char translateToPrint(char type);
+void translateToPrint(char type);
 int directionBack(int direction);
 void affichagePlayer(Player *player);
 void interaction(Player *player, Historique **head);
-int optionMenu(char *options[], int size);
+int optionMenu(char *options[], int size, char *context);
 void handleLvlUp(Player *player, int xp);
 int countItems(Player *player);
 int addItem(Player *player, Item *item);
 Item *searchItem(Player *player, char *nom_item);
 void deleteItem(Player *player, char *nom);
 void affichageMonster(Monster *monster);
-void clearMonsterAffichage();
+void affichageInventory(Player *p);
+void affichageSkills(Player *p);
+void clearAffichageMonster();
+/*void clearAffichagePlayer();
+void clearAffichageInventory(Player *p);
+void clearAffichageSkills(Player *p);*/
+void clearAffichageSide(Player *p);
 void initRiddles(Riddle *riddles[]);
 char *str_alloc(char *src);
 SkillTree *createTree(int puissance, int maxsante, int armor, char *name, char *desc, char class);
 int addSkill(Player *player, SkillNode *skill);
 int skillsetLength(SkillSet *skillSet);
+//void playSoundTrack();
+void startMenu();
+void gameOver(int won);
 
 #endif

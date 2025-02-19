@@ -1,22 +1,5 @@
 #include "headers.h"
 
-void startMenu() {
-    printf("The game has started !\n");
-    printf("Press [S] to start or [Q] to quit...");
-    char c;
-    do {
-        c = toupper(_getch());
-        sleep(0.01);
-    } while (c != 'S' && c != 'Q');
-
-    if (c == 'Q') exit(0);
-    clearTerm();
-}
-
-void gameOver() {
-    exit(0);
-}
-
 
 int checkHitDoor(Player *player) {
     // doors: 2 0: left, 0 2: top, 2 4: right, 4 2: bot
@@ -87,6 +70,8 @@ void deplacementplayer(Player *player, char input, Historique **head){
 
 void playerCommands(Player *player, Historique **head) {
     int started = 0;
+    int skills = 0;
+    int inventory = 0;
     char *options[] = {"Get 100 XP to help you in your quest hero"};
     
     while (1) {
@@ -94,39 +79,80 @@ void playerCommands(Player *player, Historique **head) {
         if (kbhit()) {
             char input = getch();
             if (!started) {
-                optionMenu(options, 1);
+                optionMenu(options, 1, "Bonus!");
                 handleLvlUp(player, 100); // to start skill tree and pick a class
                 started = 1;
             }
-            deplacementplayer(player, toupper(input), head);
-            Node *old = peek(*head);
-            if (old) {
-                /*moveCursor(30, 1);
-                /*printf("%d %d", old->x, old->y);*/
-                moveCursor(1 + old->x, 2 + old->y * 2);
-                printf("\033[45m%c", translateToPrint(old->type));
-                printf("\033[0m");
+            switch(toupper(input)) {
+                case 'I':
+                    clearAffichageSide(player);
+                    if (!inventory) {
+                        affichageInventory(player);
+                        inventory = 1;
+                    } else {
+                        affichagePlayer(player);
+                        inventory = 0;
+                    }
+                    break;
+                case 'T':
+                    clearAffichageSide(player);
+                    if (!skills) {
+                        affichageSkills(player);
+                        skills = 1;
+                    } else {
+                        affichagePlayer(player);
+                        skills = 0;
+                    }
+                    break;
+                case 'Z':
+                case 'S':
+                case 'Q':
+                case 'D':
+                    deplacementplayer(player, toupper(input), head);
+                    Node *old = peek(*head);
+                    if (old) {
+                        /*moveCursor(30, 1);
+                        /*printf("%d %d", old->x, old->y);*/
+                        moveCursor(3 + old->x * 2, 4 + old->y * 5);
+                        printf("\033[45m");
+                        if (old->type == 'E')
+                            printf(".");
+                        else printf("%c", old->type);
+                        //translateToPrint(old->type, "\033[45m");
+                        printf("\033[0m");
+                    }
+                    moveCursor(3 + player->y * 2, 4 + player->x * 5);
+                    printf("\033[1m");
+                    printf("%s@", Green);
+                    printf("\033[21m%s", Default);
+                    affichagePlayer(player);
+                    break;
             }
-            moveCursor(1 + player->y, 2 + player->x * 2);
-            printf("\033[1m");
-            printf("%s@", Green);
-            printf("\033[21m%s", White);
-            affichagePlayer(player);
         }
     }
 }
 
+void gameInt() {
+    moveCursor(30, 2);
+    printf("Game Interrupted!");
+    showCursor();
+    exit(0);
+}
+
 void playGame() {
     //printf("%c%c", (char) 201, (char) 205);
+    signal(SIGINT, gameInt);
+    //playSoundTrack();
     char name[20];
-    int size;
+    int size = 5;
     Historique *head = NULL;
     Map *map[5];
     Player *p = (Player *)malloc(sizeof(Player));
 
     startMenu();
-    printf("What's the size of  map you want ? ");
-    scanf("%d", &size);
+    /*printf("What's the size of  map you want ? ");
+    scanf("%d", &size);*/
+    moveCursor(15, 45);
     printf("What's your name hero ? ");
     scanf("%s", name);
     clearTerm();
