@@ -1,5 +1,9 @@
 #include "headers.h"
 
+/**
+ * all functions of inventory linked list needed
+ */
+
 int countItems(Player *player) {
     Inventory *current = player->inventory;
     int compteur=0;

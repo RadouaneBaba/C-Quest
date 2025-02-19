@@ -1,6 +1,8 @@
 #include "headers.h"
 
-
+/**
+ * drawings of different possible menus
+ */
 void printTitle() {
     hideCursor();
     printf("\n");
@@ -76,6 +78,10 @@ void printGameOver() {
     sleep(2);
     exit(0);
 }
+
+/**
+ * display menus and returning everything to default
+ */
 
 void startMenu() {
     clearTerm();

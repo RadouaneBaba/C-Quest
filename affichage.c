@@ -1,5 +1,9 @@
 #include "headers.h"
 
+
+/**
+ * different printing for each type of nodes
+ */
 void translateToPrint(char type) {
     switch (type) {
         case 'E':
@@ -42,11 +46,19 @@ void clearAffichageInventory(Player *p) {
 void clearAffichageSkills(Player *p) {
     clearAffichageRight(1, 3 + skillsetLength(p->skillSet));
 }
+
+/**
+ * help clearing just one side of the terminal to be able to alter between different menus
+ */
 void clearAffichageSide(Player *p) {
     clearAffichagePlayer();
     clearAffichageInventory(p);
     clearAffichageMonster(p);
 }
+
+/**
+ * display of the main parts of the UI
+ */
 void affichageMap(Player *player) {
     moveCursor(1, 1);
     printf("+");

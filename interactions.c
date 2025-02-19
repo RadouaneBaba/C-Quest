@@ -1,6 +1,10 @@
 #include "headers.h"
 
 
+/**
+ * if player cant move to a node undo this move
+ */
+
 void undoMovement(Player *player, Historique **head) {
     Node *old = peek(*head);
     player->x = old->y;
@@ -8,6 +12,9 @@ void undoMovement(Player *player, Historique **head) {
     dipiler(head);
 }
 
+/**
+ * with each xp gained calculate the lvl again if lvl up update skill tree of player and get new skill
+ */
 void handleLvlUp(Player *player, int xp) {
     player->score += xp;
     int lvlup = player->score / 100;
@@ -41,6 +48,9 @@ void handleLvlUp(Player *player, int xp) {
     }
     player->lvl = lvlup;
 }
+/**
+ * different interaction with each item and adding them to the inventory if possible
+ */
 void handleItem(Player *player, Historique **head, char type) {
     Item *item = player->currMap->room[player->y][player->x]->item;
     char s1[20] = "Get a ";
@@ -78,6 +88,9 @@ void handleItem(Player *player, Historique **head, char type) {
         }
     }
 }
+/**
+ * interacting with tree cut and get wood or leave
+ */
 void handleTree(Player *player, Historique **head) {
     char *options[] = {"Cut wood from tree", "Do nothing"};
     int res = optionMenu(options, 2, "");
@@ -90,6 +103,10 @@ void handleTree(Player *player, Historique **head) {
         handleLvlUp(player, item->xp);
     }
 }
+
+/**
+ * handling river interactions cross river if has wood otherwise no
+ */
 
 void handleRiver(Player *player, Historique **head) {
     Item *item = searchItem(player, "Wood");
@@ -111,6 +128,10 @@ void handleRiver(Player *player, Historique **head) {
     }
 }
 
+/**
+ * special skills cant be spammed in fights
+ */
+
 void skillOnCooldown(Queue *turns) {
     moveCursor(OPTION_LINE, 1);
     printf("skill on cooldown");
@@ -121,6 +142,10 @@ void skillOnCooldown(Queue *turns) {
     enqueue(turns, 'M');
 }
 
+
+/**
+ * turn based combat system using queues where p is turn of player and m is turn of monster
+ */
 void handleCombat(Player *player, Monster *monster) {
     Queue *turns = (Queue *) malloc(sizeof(Queue));
     init_queue(turns);
@@ -248,6 +273,9 @@ void handleCombat(Player *player, Monster *monster) {
     }
     
 }
+/**
+ * monster interaction and initiation of combat
+ */
 void handleMonster(Player *player, Historique **head) {
     Monster *monster = player->currMap->room[player->y][player->x]->monster;
     char s1[20] = "Fight ";
@@ -262,7 +290,9 @@ void handleMonster(Player *player, Historique **head) {
         player->currMap->room[player->y][player->x]->type = 'E';
     }
 }
-
+/**
+ * check if you are worthy to fight boss if so boss get a random riddle and you must answer it
+ */
 void handleBoss(Player *player, Historique **head) {
     if (player->currMap->hasBoss && player->currMap->lvlLock > player->lvl) {
         char *options[] = {"You are not ready yet to meet the Boss!"};
@@ -285,6 +315,9 @@ void handleBoss(Player *player, Historique **head) {
     }
 }
 
+/**
+ * calling interaction functions based on node plalyer is currently in
+ */
 void interaction(Player *player, Historique **head) {
     int i = player->y;
     int j = player->x;

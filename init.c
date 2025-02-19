@@ -52,6 +52,8 @@ void initMap(int size, Map *map[]) {
     */
 }
 
+//initializing predefined skill tree
+
 void initSkillTree(SkillTree *root) {
     if (root == NULL) {
         printf("Error: cannot initialize tree");

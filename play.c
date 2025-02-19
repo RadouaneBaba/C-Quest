@@ -1,6 +1,9 @@
 #include "headers.h"
 
 
+/**
+ * check if play hit a door if yes send player to the right room and change his coordinates
+ */
 int checkHitDoor(Player *player) {
     // doors: 2 0: left, 0 2: top, 2 4: right, 4 2: bot
     // Rows - 1 / 2: 0 ..
@@ -30,6 +33,9 @@ int checkHitDoor(Player *player) {
     return 0;
 }
 
+/**
+ * handle z s q d movements and limits as well as interactions to nodes moved into
+ */
 void deplacementplayer(Player *player, char input, Historique **head){
     empiler(head,player->currMap->room[player->y][player->x]);
 
@@ -67,7 +73,9 @@ void deplacementplayer(Player *player, char input, Historique **head){
     else interaction(player, head);
 }
 
-
+/**
+ * keeping the game alive until the end and capturing input from keyboard and applying input accordingly
+ */
 void playerCommands(Player *player, Historique **head) {
     int started = 0;
     int skills = 0;
@@ -139,9 +147,13 @@ void gameInt() {
     exit(0);
 }
 
+/**
+ * main entry to the game
+ */
+
 void playGame() {
     //printf("%c%c", (char) 201, (char) 205);
-    signal(SIGINT, gameInt);
+    signal(SIGINT, gameInt); // catch ctrl + c
     //playSoundTrack();
     char name[20];
     int size = 5;
